@@ -1,0 +1,98 @@
+---
+# Install dependencies
+- name: Install repos
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: "{{ rhel_repo }}"
+
+- name: Install packages
+  yum:
+    name: "{{ rhel_req }}"
+
+- name: Enable docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+    masked: no
+
+- name: Make dir for cert
+  file:
+    path: /etc/docker/certs.d/10.10.100.110:5000/
+    state: directory
+    mode: '0755'
+
+- name: Copy cert to client
+  copy:
+    src: /home/alex/main-ca/certs/10.10.100.110:5000/domain.crt
+    dest: /etc/docker/cert.d/10.10.100.110:5000/
+    owner: root
+    group: root
+
+- name: install ca package on rhel systems
+  yum:
+    name: ca-certificates
+    state: present
+
+
+- name: enable dynamic ca configuration on rhel6
+  shell: /bin/update-ca-trust enable
+
+- name: Copy CA
+  copy:
+    src: /home/alex/main-ca/homelab_main.CA.pem
+    dest: /etc/pki/ca-trust/source/anchors/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: update trusted ca redhat
+  shell: /bin/update-ca-trust
+
+- name: install python3 dependencies
+  pip:
+    name: "{{pip_req}}"
+    executable: pip3
+
+- name: install python2 dependencies
+  pip:
+    name: "{{pip_req}}"
+    executable: pip2
+
+- name: Open ports for docker
+  firewalld:
+    port: 2376/tcp
+    permanent: yes
+    state: enabled
+    zone: public
+
+- name: Open ports for docker
+  firewalld:
+    port: 4789/udp
+    permanent: yes
+    state: enabled
+    zone: public
+
+- name: Open ports for docker
+  firewalld:
+    port: 7946/udp
+    permanent: yes
+    state: enabled
+    zone: public
+
+- name: Open ports for docker
+  firewalld:
+    port: 7946/tcp
+    permanent: yes
+    state: enabled
+    zone: public
+
+- name: Open ports for docker
+  firewalld:
+    port: 2377/tcp
+    permanent: yes
+    state: enabled
+    zone: public
+
+
