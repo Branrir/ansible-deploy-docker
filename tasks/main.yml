@@ -1,7 +1,10 @@
 ---
-# Install rhel dependencies
-- name: Import RHEL Playbook
+# Install rhel
+- name: Import RHEL Tasks
   import_tasks: install_docker_rhel.yml
   when: ansible_os_family == "RedHat" or ansible_os_family == "CentOS"
 
-
+# Install debian 
+- name: Import Debian Tasks
+  import_tasks: install_docker_deb.yml
+  when: ansible_os_family == "Debian" or ansible_os_family == "Ubuntu"

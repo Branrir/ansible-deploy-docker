@@ -1,0 +1,64 @@
+---
+# Install dependencies
+- name: Install dependencies
+  apt:
+    name:  "{{ deb_req }}"
+    state: present
+
+# Install repo key
+- name: install key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+# Install docker repo
+- name: add docker repo
+  apt_repository:
+    repo: deb {{deb_repo}} {{ ansible_distribution_release }} stable
+    state: present
+
+# Install docker
+- name: Install docker
+  apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, python-docker]
+    state: present
+
+# Enable docker
+- name: Enable docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+    masked: no
+
+# Set Docker packages on hold
+- name: Set hold for docker
+  dpkg_selections:
+    name: "{{ item }}" 
+    selection: hold
+  loop: [docker-ce, docker-ce-cli, containerd.io]
+
+# Install Certs for local docker-repo
+- name: Make dir for cert
+  file:
+    path: /etc/docker/certs.d/10.10.100.110:5000/
+    state: directory
+    mode: '0755'
+  
+- name: Copy cert to client
+  copy:
+    src: /home/alex/main-ca/certs/10.10.100.110:5000/domain.crt
+    dest: /etc/docker/cert.d/10.10.100.110:5000/
+    owner: root
+    group: root
+
+- name: Copy CA
+  copy:
+    src: /home/alex/main-ca/homelab_main.CA.pem
+    dest: /usr/local/share/ca-certificates/
+    owner: root
+    group: root
+    mode: 0644
+
+- name: update trusted ca deb
+  shell: /usr/sbin/update-ca-certificates

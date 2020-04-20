@@ -2,6 +2,8 @@
 # defaults file for deploy-docker
 rhel_repo: https://download.docker.com/linux/centos/7/$basearch/stable
 rhel_req: [python3-requests, python2-requests, yum-utils, device-mapper-persistent-data, lvm2, docker-ce-3:18.09.1-3.el7 , docker-ce-cli, containerd.io]
+deb_repo: https://download.docker.com/linux/debian
+deb_req: [apt-transport-https, ca-certificates, curl, gnupg-agent, software-properties-common]
 pip_req: [docker]
 ports_tcp: [2376, 2377, 7946]
 ports_udp: [7946, 4789]
